@@ -103,6 +103,39 @@ app.put('/guests/:id', function(req, res) {
   });
 });
 
+
+
+
+
+app.delete('/guests/:id', function(req, res) {
+  fs.readFile(guestsPath, 'utf8', function(readErr, guestsJSON) {
+    if (readErr) {
+      console.error(err.stack);
+      return res.sendStatus(500);
+    }
+    var id = Number.parseInt(req.params.id);
+    var guests = JSON.parse(guestsJSON);
+    if (id < 0 || id >= guests.length || Number.isNaN(id) ) {
+      return res.sendStatus(404);
+    }
+//delete existing guest by splicing out one
+    var guest = guests.splice(id, 1)[0];
+    var newGuestsJSON = JSON.stringify(guests);
+
+    fs.writeFile(guestsPath, newGuestsJSON, function(writeErr) {
+      if (writeErr) {
+        console.error(writeErr.stack);
+        return res.sendStatus(500);
+      }
+
+      res.set('Content-Type', 'text/plain');
+      //sends the name of the guest that was deleted by the splice
+      res.send(guest);
+    });
+  });
+});
+
+
 app.use(function(req, res) {
   res.sendStatus(404);
 });
