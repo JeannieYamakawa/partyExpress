@@ -6,31 +6,31 @@ var guestsPath = path.join(__dirname, 'guests.json');
 var express = require('express');
 var app = express();
 var port = process.env.PORT || 8000;
+var morgan = require('morgan');
 
 app.disable('x-powered-by');
+app.use(morgan('short'));
 
 app.get('/guests', function(req, res) {
-  fs.readFile(guestsPath, 'utf8', function(err, data) {
+  fs.readFile(guestsPath, 'utf8', function(err, guestsJSON) {
     if (err) {
       console.error(err.stack);
       return res.sendStatus(500);
     }
-
-    var guests = JSON.parse(data);
-
+    var guests = JSON.parse(guestsJSON);
     res.send(guests);
   });
 });
 
 app.get('/guests/:id', function(req, res) {
-  fs.readFile(guestsPath, 'utf8', function(err, data){
-    if (err == true) {
+  fs.readFile(guestsPath, 'utf8', function(err, guestsJSON) {
+    if (err) {
       console.error(err.stack);
       return res.sendStatus(500);
     }
 
     var id = Number.parseInt(req.params.id);
-    var guests = JSON.parse(data);
+    var guests = JSON.parse(guestsJSON);
 
     if (id < 0 || id >= guests.length || Number.isNaN(id)) {
       return res.sendStatus(404);
